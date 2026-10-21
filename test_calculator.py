@@ -1,6 +1,6 @@
 import pytest
 from core import calculate_subnet
-from advanced import vlsm_plan
+from vlsm import vlsm_plan
 
 
 def test_standard_subnet():

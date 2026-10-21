@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template_string
 from core import calculate_subnet, get_ip_class, binary_visualization
-from advanced import vlsm_plan, split_subnet, summarize_routes
+from vlsm import vlsm_plan
+from splitter import split_subnet
+from summarizer import summarize_routes
 
 app = Flask(__name__)
 

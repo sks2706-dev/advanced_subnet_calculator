@@ -24,7 +24,9 @@ A clean, beginner-friendly IPv4 subnetting and network planning toolkit built wi
 ```text
 cn-subnet-calc/
 ├── core.py               # Core subnet calculations, IP classification, and binary visualization
-├── advanced.py           # VLSM planning, subnet splitting, and route summarization
+├── vlsm.py               # VLSM planning using First-Fit Decreasing
+├── splitter.py           # Subnet splitting into smaller subnets
+├── summarizer.py         # Route summarization and address collapsing
 ├── cli.py                # Interactive command-line menu interface
 ├── app.py                # Flask web interface for all calculator tools
 ├── test_calculator.py    # Unit test suite written with pytest

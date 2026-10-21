@@ -1,5 +1,7 @@
 from core import calculate_subnet, get_ip_class
-from advanced import vlsm_plan, split_subnet, summarize_routes
+from vlsm import vlsm_plan
+from splitter import split_subnet
+from summarizer import summarize_routes
 
 
 def main():

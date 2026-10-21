@@ -121,36 +121,3 @@ def vlsm_plan(base_cidr, host_requirements):
         "utilization_pct": utilization_pct,
         "waste_pct": waste_pct,
     }
-
-
-def split_subnet(base_cidr, new_prefix):
-    """Split a network into smaller subnets using IPv4Network.subnets()."""
-    net = ipaddress.IPv4Network(base_cidr, strict=False)
-
-    if isinstance(new_prefix, str):
-        target_prefix = int(new_prefix.lstrip("/"))
-    else:
-        target_prefix = int(new_prefix)
-
-    subnets_list = [str(s) for s in net.subnets(new_prefix=target_prefix)]
-
-    return {
-        "original_network": str(net),
-        "new_prefix": target_prefix,
-        "count": len(subnets_list),
-        "subnets": subnets_list,
-    }
-
-
-def summarize_routes(cidrs):
-    """Summarize a list of network strings using ipaddress.collapse_addresses()."""
-    networks = [ipaddress.IPv4Network(c, strict=False) for c in cidrs]
-    summarized_list = [str(net) for net in ipaddress.collapse_addresses(networks)]
-    original_list = [str(c) for c in cidrs]
-
-    return {
-        "original_list": original_list,
-        "summarized_list": summarized_list,
-        "original_count": len(original_list),
-        "new_count": len(summarized_list),
-    }
