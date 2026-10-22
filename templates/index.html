@@ -1,22 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>IPv4 Network & Subnet Tools</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPv4 Network &amp; Subnet Tools</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-    <h1>IPv4 Subnet & Network Toolkit</h1>
 
-    <!-- 1. Subnet Calculator -->
-    <div class="card">
-        <h2>Subnet Calculator</h2>
+<!--
+    data-active-section: tells script.js which tool panel to open on load
+    when the server returns results. Maps to the tool section IDs below.
+-->
+<body data-active-section="
+    {%- if calc_result or calc_error -%}section-calc
+    {%- elif vlsm_result or vlsm_error -%}section-vlsm
+    {%- elif split_result or split_error -%}section-split
+    {%- elif sum_result or sum_error -%}section-sum
+    {%- elif overlap_checked or overlap_error -%}section-overlap
+    {%- endif -%}
+">
+
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+
+    <div class="sidebar-brand">
+        <span class="sidebar-brand-label">IPv4 Toolkit</span>
+        <span class="sidebar-brand-name">Subnet&nbsp;&amp;<br>Network Tools</span>
+    </div>
+
+    <ul class="sidebar-nav" role="navigation" aria-label="Tool navigation">
+        <li class="sidebar-nav-item"
+            data-target="section-calc"
+            data-index="01"
+            role="button"
+            tabindex="0"
+            aria-controls="section-calc">
+            Subnet Calculator
+        </li>
+        <li class="sidebar-nav-item"
+            data-target="section-vlsm"
+            data-index="02"
+            role="button"
+            tabindex="0"
+            aria-controls="section-vlsm">
+            VLSM Planner
+        </li>
+        <li class="sidebar-nav-item"
+            data-target="section-split"
+            data-index="03"
+            role="button"
+            tabindex="0"
+            aria-controls="section-split">
+            Subnet Splitter
+        </li>
+        <li class="sidebar-nav-item"
+            data-target="section-sum"
+            data-index="04"
+            role="button"
+            tabindex="0"
+            aria-controls="section-sum">
+            Route Summarizer
+        </li>
+        <li class="sidebar-nav-item"
+            data-target="section-overlap"
+            data-index="05"
+            role="button"
+            tabindex="0"
+            aria-controls="section-overlap">
+            Overlap Checker
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        IPv4 only &mdash; CIDR notation.<br>
+        Pick a tool to get started.
+    </div>
+
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════ -->
+<main class="main-content">
+
+    <!-- ── Landing / Hero ──────────────────────────────────── -->
+    <section id="landing" aria-label="Welcome">
+        <p class="hero-eyebrow">IPv4 Network &amp; Subnet Toolkit</p>
+        <h1 class="hero-title">
+            <span class="hero-word">Subnet.</span>&nbsp;
+            <span class="hero-word">Split.</span>&nbsp;
+            <span class="hero-word"><em>Summarize.</em></span>
+        </h1>
+        <p class="hero-subtitle">
+            Five precision tools for IP address planning,
+            allocation, and analysis. Choose a tool from
+            the left to begin.
+        </p>
+    </section>
+
+    <!-- ── 1. Subnet Calculator ────────────────────────────── -->
+    <section id="section-calc" class="tool-section" aria-labelledby="calc-title">
+
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 01</p>
+            <h2 class="section-title" id="calc-title">Subnet Calculator</h2>
+        </div>
+
         <form method="POST">
             <input type="hidden" name="action" value="calculate">
             <div class="form-group">
-                <label for="calc_ip">Enter IP/CIDR:</label>
-                <input type="text" id="calc_ip" name="calc_ip" value="{{ calc_ip }}" placeholder="e.g., 192.168.1.1/24" required>
+                <label for="calc_ip">IP Address / CIDR</label>
+                <input type="text" id="calc_ip" name="calc_ip" required
+                       value="{{ request.form.get('calc_ip', '') if request.form.get('action') == 'calculate' else '' }}">
             </div>
-            <button type="submit">Calculate</button>
+            <button type="submit">Run it</button>
         </form>
 
         {% if calc_error %}
@@ -24,37 +123,46 @@
         {% endif %}
 
         {% if calc_result %}
-            <h3>Subnet Information</h3>
-            <table>
-                <tr><th style="width: 35%;">IP Address</th><td>{{ calc_result.ip }}</td></tr>
-                <tr><th>IP Class</th><td>Class {{ calc_class }}</td></tr>
-                <tr><th>Prefix</th><td>/{{ calc_result.prefix }}</td></tr>
-                <tr><th>Subnet Mask</th><td>{{ calc_result.mask }}</td></tr>
-                <tr><th>Wildcard Mask</th><td>{{ calc_result.wildcard }}</td></tr>
-                <tr><th>Network Address</th><td>{{ calc_result.network }}</td></tr>
-                <tr><th>Broadcast Address</th><td>{{ calc_result.broadcast }}</td></tr>
-                <tr><th>First Usable Host</th><td>{{ calc_result.first_host }}</td></tr>
-                <tr><th>Last Usable Host</th><td>{{ calc_result.last_host }}</td></tr>
-                <tr><th>Usable Hosts</th><td>{{ calc_result.num_hosts }}</td></tr>
-            </table>
+            <div class="result-block">
+                <h3>Subnet Information</h3>
+                <table>
+                    <tr><th style="width:40%">IP Address</th><td>{{ calc_result.ip }}</td></tr>
+                    <tr><th>IP Class</th><td>Class {{ calc_class }}</td></tr>
+                    <tr><th>Prefix</th><td>/{{ calc_result.prefix }}</td></tr>
+                    <tr><th>Subnet Mask</th><td>{{ calc_result.mask }}</td></tr>
+                    <tr><th>Wildcard Mask</th><td>{{ calc_result.wildcard }}</td></tr>
+                    <tr><th>Network Address</th><td>{{ calc_result.network }}</td></tr>
+                    <tr><th>Broadcast Address</th><td>{{ calc_result.broadcast }}</td></tr>
+                    <tr><th>First Usable Host</th><td>{{ calc_result.first_host }}</td></tr>
+                    <tr><th>Last Usable Host</th><td>{{ calc_result.last_host }}</td></tr>
+                    <tr><th>Usable Hosts</th><td>{{ calc_result.num_hosts }}</td></tr>
+                </table>
 
-            <h3>Binary Visualization</h3>
-            <pre>{{ calc_binary }}</pre>
+                <h3 style="margin-top:28px">Binary Visualization</h3>
+                <pre>{{ calc_binary }}</pre>
+            </div>
         {% endif %}
-    </div>
 
-    <!-- 2. VLSM Planner -->
-    <div class="card">
-        <h2>VLSM Planner</h2>
+    </section>
+
+    <!-- ── 2. VLSM Planner ────────────────────────────────── -->
+    <section id="section-vlsm" class="tool-section" aria-labelledby="vlsm-title">
+
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 02</p>
+            <h2 class="section-title" id="vlsm-title">VLSM Planner</h2>
+        </div>
+
         <form method="POST">
             <input type="hidden" name="action" value="vlsm">
             <div class="form-group">
-                <label for="vlsm_base">Base CIDR:</label>
-                <input type="text" id="vlsm_base" name="vlsm_base" value="{{ vlsm_base }}" placeholder="e.g., 192.168.1.0/24" required>
+                <label for="vlsm_base">Base CIDR</label>
+                <input type="text" id="vlsm_base" name="vlsm_base" required
+                       value="{{ request.form.get('vlsm_base', '') if request.form.get('action') == 'vlsm' else '' }}">
             </div>
             <div class="form-group">
-                <label for="vlsm_hosts">Host Requirements (comma-separated):</label>
-                <input type="text" id="vlsm_hosts" name="vlsm_hosts" value="{{ vlsm_hosts }}" placeholder="e.g., 120, 60, 30" required>
+                <label for="vlsm_hosts">Host Requirements &mdash; one per line</label>
+                <textarea id="vlsm_hosts" name="vlsm_hosts" rows="5" required>{{ request.form.get('vlsm_hosts', '') if request.form.get('action') == 'vlsm' else '' }}</textarea>
             </div>
             <button type="submit">Plan Subnets</button>
         </form>
@@ -64,45 +172,55 @@
         {% endif %}
 
         {% if vlsm_result %}
-            <h3>Allocations</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Subnet</th>
-                        <th>Requested Hosts</th>
-                        <th>Usable Hosts</th>
-                        <th>Wasted Addresses</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in vlsm_result.allocations %}
-                    <tr>
-                        <td>{{ item.subnet }}</td>
-                        <td>{{ item.requested_hosts }}</td>
-                        <td>{{ item.usable_hosts }}</td>
-                        <td>{{ item.wasted_addresses }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <p><strong>Waste Percentage:</strong> {{ "%.2f"|format(vlsm_result.waste_pct) }}%</p>
+            <div class="result-block">
+                <h3>Allocations</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subnet</th>
+                            <th>Requested Hosts</th>
+                            <th>Usable Hosts</th>
+                            <th>Wasted Addresses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in vlsm_result.allocations %}
+                        <tr>
+                            <td>{{ item.subnet }}</td>
+                            <td>{{ item.requested_hosts }}</td>
+                            <td>{{ item.usable_hosts }}</td>
+                            <td>{{ item.wasted_addresses }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="result-meta">Waste: {{ "%.2f"|format(vlsm_result.waste_pct) }}%</p>
+            </div>
         {% endif %}
-    </div>
 
-    <!-- 3. Subnet Splitter -->
-    <div class="card">
-        <h2>Subnet Splitter</h2>
+    </section>
+
+    <!-- ── 3. Subnet Splitter ─────────────────────────────── -->
+    <section id="section-split" class="tool-section" aria-labelledby="split-title">
+
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 03</p>
+            <h2 class="section-title" id="split-title">Subnet Splitter</h2>
+        </div>
+
         <form method="POST">
             <input type="hidden" name="action" value="split">
             <div class="form-group">
-                <label for="split_base">Base CIDR:</label>
-                <input type="text" id="split_base" name="split_base" value="{{ split_base }}" placeholder="e.g., 192.168.1.0/24" required>
+                <label for="split_base">Base CIDR</label>
+                <input type="text" id="split_base" name="split_base" required
+                       value="{{ request.form.get('split_base', '') if request.form.get('action') == 'split' else '' }}">
             </div>
             <div class="form-group">
-                <label for="split_prefix">New Prefix Length:</label>
-                <input type="text" id="split_prefix" name="split_prefix" value="{{ split_prefix }}" placeholder="e.g., 26" required>
+                <label for="split_prefix">New Prefix Length</label>
+                <input type="text" id="split_prefix" name="split_prefix" required
+                       value="{{ request.form.get('split_prefix', '') if request.form.get('action') == 'split' else '' }}">
             </div>
-            <button type="submit">Split Subnet</button>
+            <button type="submit">Split it</button>
         </form>
 
         {% if split_error %}
@@ -110,23 +228,31 @@
         {% endif %}
 
         {% if split_result %}
-            <h3>New Subnets ({{ split_result.count }})</h3>
-            <ul>
-                {% for sub in split_result.subnets %}
-                <li>{{ sub }}</li>
-                {% endfor %}
-            </ul>
+            <div class="result-block">
+                <h3>New Subnets &mdash; {{ split_result.count }} total</h3>
+                <ul>
+                    {% for sub in split_result.subnets %}
+                    <li>{{ sub }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endif %}
-    </div>
 
-    <!-- 4. Route Summarizer -->
-    <div class="card">
-        <h2>Route Summarizer</h2>
+    </section>
+
+    <!-- ── 4. Route Summarizer ────────────────────────────── -->
+    <section id="section-sum" class="tool-section" aria-labelledby="sum-title">
+
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 04</p>
+            <h2 class="section-title" id="sum-title">Route Summarizer</h2>
+        </div>
+
         <form method="POST">
             <input type="hidden" name="action" value="summarize">
             <div class="form-group">
-                <label for="sum_cidrs">CIDRs to Summarize (comma-separated):</label>
-                <input type="text" id="sum_cidrs" name="sum_cidrs" value="{{ sum_cidrs }}" placeholder="e.g., 192.168.0.0/24, 192.168.1.0/24" required>
+                <label for="sum_cidrs">CIDRs to Summarize &mdash; one per line</label>
+                <textarea id="sum_cidrs" name="sum_cidrs" rows="5" required>{{ request.form.get('sum_cidrs', '') if request.form.get('action') == 'summarize' else '' }}</textarea>
             </div>
             <button type="submit">Summarize Routes</button>
         </form>
@@ -136,23 +262,31 @@
         {% endif %}
 
         {% if sum_result %}
-            <h3>Summarized Routes</h3>
-            <ul>
-                {% for route in sum_result.summarized_list %}
-                <li>{{ route }}</li>
-                {% endfor %}
-            </ul>
+            <div class="result-block">
+                <h3>Summarized Routes</h3>
+                <ul>
+                    {% for route in sum_result.summarized_list %}
+                    <li>{{ route }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endif %}
-    </div>
 
-    <!-- 5. Overlap Checker -->
-    <div class="card">
-        <h2>Overlap Checker</h2>
+    </section>
+
+    <!-- ── 5. Overlap Checker ─────────────────────────────── -->
+    <section id="section-overlap" class="tool-section" aria-labelledby="overlap-title">
+
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 05</p>
+            <h2 class="section-title" id="overlap-title">Overlap Checker</h2>
+        </div>
+
         <form method="POST">
             <input type="hidden" name="action" value="overlap">
             <div class="form-group">
-                <label for="overlap_cidrs">CIDRs to Check (comma-separated):</label>
-                <input type="text" id="overlap_cidrs" name="overlap_cidrs" value="{{ overlap_cidrs }}" placeholder="e.g., 192.168.1.0/24, 192.168.1.128/25, 10.0.0.0/16" required>
+                <label for="overlap_cidrs">CIDRs to Check &mdash; one per line</label>
+                <textarea id="overlap_cidrs" name="overlap_cidrs" rows="5" required>{{ request.form.get('overlap_cidrs', '') if request.form.get('action') == 'overlap' else '' }}</textarea>
             </div>
             <button type="submit">Check Overlaps</button>
         </form>
@@ -162,17 +296,24 @@
         {% endif %}
 
         {% if overlap_checked %}
-            {% if overlap_conflicts %}
-                <h3>Conflicting Networks Found</h3>
-                <ul>
-                    {% for c1, c2 in overlap_conflicts %}
-                    <li><strong>{{ c1 }}</strong> overlaps with <strong>{{ c2 }}</strong></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="success">No overlapping networks found.</p>
-            {% endif %}
+            <div class="result-block">
+                {% if overlap_conflicts %}
+                    <h3>Conflicting Networks Found</h3>
+                    <ul>
+                        {% for c1, c2 in overlap_conflicts %}
+                        <li><strong>{{ c1 }}</strong> overlaps with <strong>{{ c2 }}</strong></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="success">No overlapping networks found.</p>
+                {% endif %}
+            </div>
         {% endif %}
-    </div>
+
+    </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

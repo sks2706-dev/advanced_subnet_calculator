@@ -38,7 +38,7 @@ def main():
 
         elif choice == "2":
             base_cidr = input("Enter Base CIDR (e.g., 192.168.1.0/24): ").strip()
-            hosts_input = input("Enter host requirements separated by commas or spaces: ").strip()
+            hosts_input = input("Enter host requirements (separated by spaces): ").strip()
             raw_reqs = hosts_input.replace(",", " ").split()
             try:
                 reqs = [int(x) for x in raw_reqs]
@@ -74,7 +74,7 @@ def main():
                 print(f"\nError: {e}")
 
         elif choice == "4":
-            routes_input = input("Enter CIDRs to summarize separated by commas or spaces: ").strip()
+            routes_input = input("Enter CIDRs to summarize (separated by spaces): ").strip()
             cidrs = [c.strip() for c in routes_input.replace(",", " ").split() if c.strip()]
             if not cidrs:
                 print("\nError: No CIDRs entered.")
@@ -91,7 +91,7 @@ def main():
                 print(f"\nError: {e}")
 
         elif choice == "5":
-            cidrs_input = input("Enter CIDRs to check separated by commas or spaces: ").strip()
+            cidrs_input = input("Enter CIDRs to check (separated by spaces): ").strip()
             cidrs = [c.strip() for c in cidrs_input.replace(",", " ").split() if c.strip()]
             if not cidrs:
                 print("\nError: No CIDRs entered.")
