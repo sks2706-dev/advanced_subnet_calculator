@@ -2,6 +2,7 @@ from core import calculate_subnet, get_ip_class
 from vlsm import vlsm_plan
 from splitter import split_subnet
 from summarizer import summarize_routes
+from overlap import check_overlaps
 
 
 def main():
@@ -11,9 +12,10 @@ def main():
         print("2. VLSM Plan")
         print("3. Split Subnet")
         print("4. Summarize Routes")
-        print("5. Exit")
+        print("5. Check Overlaps")
+        print("6. Exit")
 
-        choice = input("\nEnter your choice (1-5): ").strip()
+        choice = input("\nEnter your choice (1-6): ").strip()
 
         if choice == "1":
             ip_cidr = input("Enter IP/CIDR (e.g., 192.168.1.1/24): ").strip()
@@ -89,11 +91,28 @@ def main():
                 print(f"\nError: {e}")
 
         elif choice == "5":
+            cidrs_input = input("Enter CIDRs to check separated by commas or spaces: ").strip()
+            cidrs = [c.strip() for c in cidrs_input.replace(",", " ").split() if c.strip()]
+            if not cidrs:
+                print("\nError: No CIDRs entered.")
+                continue
+            try:
+                conflicts = check_overlaps(cidrs)
+                if conflicts:
+                    print(f"\nConflicting networks found ({len(conflicts)}):")
+                    for c1, c2 in conflicts:
+                        print(f"  - {c1} overlaps with {c2}")
+                else:
+                    print("\nNo overlapping networks found.")
+            except ValueError as e:
+                print(f"\nError: {e}")
+
+        elif choice == "6":
             print("\nExiting. Goodbye!")
             break
 
         else:
-            print("\nInvalid choice. Please enter a number between 1 and 5.")
+            print("\nInvalid choice. Please enter a number between 1 and 6.")
 
 
 if __name__ == "__main__":

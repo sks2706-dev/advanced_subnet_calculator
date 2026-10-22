@@ -16,6 +16,7 @@ A clean, beginner-friendly IPv4 subnetting and network planning toolkit built wi
 - **VLSM Planning**: Uses First-Fit Decreasing (largest to smallest) to allocate subnets without boundary fragmentation and tracks address waste.
 - **Subnet Splitting**: Divides a larger network block into smaller, equal-sized subnets.
 - **Route Summarization**: Combines contiguous or overlapping subnets into minimal supernet routes.
+- **Overlap Detection**: Scans a list of CIDRs and detects any overlapping or conflicting address spaces.
 
 ---
 
@@ -27,8 +28,13 @@ cn-subnet-calc/
 ├── vlsm.py               # VLSM planning using First-Fit Decreasing
 ├── splitter.py           # Subnet splitting into smaller subnets
 ├── summarizer.py         # Route summarization and address collapsing
+├── overlap.py            # Overlap and conflict detection across subnets
 ├── cli.py                # Interactive command-line menu interface
 ├── app.py                # Flask web interface for all calculator tools
+├── templates/
+│   └── index.html        # Flask HTML template
+├── static/
+│   └── style.css         # CSS styles for the web UI
 ├── test_calculator.py    # Unit test suite written with pytest
 └── requirements.txt      # Project dependencies (Flask, pytest)
 ```
@@ -61,7 +67,8 @@ Follow the on-screen options:
 2. **VLSM Plan** (e.g., base `192.168.1.0/24` with hosts `120, 60, 30`)
 3. **Split Subnet** (e.g., base `192.168.1.0/24` with new prefix `26`)
 4. **Summarize Routes** (e.g., `192.168.0.0/24, 192.168.1.0/24`)
-5. **Exit**
+5. **Check Overlaps** (e.g., `192.168.1.0/24, 192.168.1.128/25`)
+6. **Exit**
 
 ---
 

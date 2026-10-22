@@ -1,6 +1,7 @@
 import pytest
 from core import calculate_subnet
 from vlsm import vlsm_plan
+from overlap import check_overlaps
 
 
 def test_standard_subnet():
@@ -21,3 +22,8 @@ def test_invalid_ip():
 def test_vlsm_overflow():
     result = vlsm_plan("192.168.1.0/24", [200, 100])
     assert result["error"] == "Insufficient address space"
+
+
+def test_overlap_checker():
+    conflicts = check_overlaps(["192.168.1.0/24", "192.168.1.128/25"])
+    assert conflicts == [("192.168.1.0/24", "192.168.1.128/25")]
