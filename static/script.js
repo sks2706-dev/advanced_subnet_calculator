@@ -12,37 +12,28 @@
 
   /**
    * Show the tool section matching the given id, hide everything else.
-   * Applies a fade-in / slide-up animation via CSS class swap.
    */
   function showSection(id) {
-    // Hide landing
     if (landing) {
       landing.classList.add("hidden");
     }
 
-    // Hide all sections, reset their animation class
     sections.forEach((sec) => {
       sec.classList.remove("active", "fade-in");
     });
 
-    // Activate target section and trigger animation
     const target = document.getElementById(id);
     if (target) {
       target.classList.add("active");
-      // Force reflow so the animation restarts cleanly
-      void target.offsetWidth;
+      void target.offsetWidth; // Force reflow
       target.classList.add("fade-in");
     }
 
-    // Update active nav state
     navItems.forEach((item) => {
       item.classList.toggle("active", item.dataset.target === id);
     });
   }
 
-  /**
-   * Attach click listeners to sidebar nav items.
-   */
   function initNav() {
     navItems.forEach((item) => {
       item.addEventListener("click", () => {
@@ -54,11 +45,6 @@
     });
   }
 
-  /**
-   * On page load, if the server returned results for a specific tool
-   * (indicated by the data-active-section attribute on <body>),
-   * auto-navigate to that tool so the user sees their results.
-   */
   function handleServerResult() {
     const body = document.body;
     const activeSection = body.dataset.activeSection;
@@ -67,20 +53,74 @@
     }
   }
 
-  /**
-   * Staggered entrance animation for sidebar nav items on initial load.
-   */
   function initPageLoadAnimation() {
     navItems.forEach((item, i) => {
       item.style.animationDelay = `${0.1 + i * 0.07}s`;
       item.classList.add("nav-enter");
     });
 
-    // Animate landing title words
     const heroWords = document.querySelectorAll(".hero-word");
     heroWords.forEach((word, i) => {
       word.style.animationDelay = `${0.2 + i * 0.1}s`;
       word.classList.add("hero-enter");
+    });
+  }
+
+  /**
+   * CORRECTED: Binary Coloring based on Subnet Mask position
+   */
+  function colorBinaryBits() {
+    const pres = document.querySelectorAll("#section-calc pre");
+    
+    pres.forEach((pre) => {
+      const raw = pre.textContent;
+      const lines = raw.split('\n');
+      
+      let maskBits = "";
+      // 1. Find the subnet mask to know where the network ends
+      for (let line of lines) {
+        if (line.includes("Subnet Mask:")) {
+          maskBits = line.split(':')[1].replace(/\./g, '').replace(/\s/g, '');
+          break;
+        }
+      }
+
+      if (!maskBits) return; // If no mask found, stop
+
+      let html = "";
+      let bitIndex = 0;
+
+      // 2. Loop through the text and color based on the mask
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        
+        // Keep spaces and newlines as-is
+        if (ch === '\n' || ch === ' ' || ch === '\t') {
+            html += ch;
+        } else if (ch === '.') {
+            html += ch;
+        } else if (ch === '0' || ch === '1') {
+            // Check if the corresponding bit in the mask is 1 or 0
+            if (maskBits[bitIndex] === '1') {
+                html += `<span class="net-bit">${ch}</span>`;
+            } else {
+                html += `<span class="host-bit">${ch}</span>`;
+            }
+            bitIndex++;
+        } else {
+            // Keep text labels like "IP:" as normal text
+            if (ch === "&") html += "&amp;";
+            else if (ch === "<") html += "&lt;";
+            else if (ch === ">") html += "&gt;";
+            else html += ch;
+        }
+        
+        // Reset bitIndex at the end of a line so the next line starts fresh
+        if (ch === '\n') {
+            bitIndex = 0;
+        }
+      }
+      pre.innerHTML = html;
     });
   }
 
@@ -89,5 +129,6 @@
     initNav();
     initPageLoadAnimation();
     handleServerResult();
+    colorBinaryBits();
   });
 })();

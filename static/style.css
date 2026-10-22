@@ -481,3 +481,87 @@ li strong {
     padding: 28px 20px 48px;
   }
 }
+
+/* ── Binary bit coloring ─────────────────────────────────────── */
+/* Injected by colorBinaryBits() in script.js                     */
+.net-bit {
+  color: #1E90FF;
+  font-weight: 700;
+}
+
+.host-bit {
+  color: #FF4A1C;
+  font-weight: 700;
+}
+
+/* Override pre default color so uncolored chars stay readable */
+pre {
+  color: #C8C4BC;
+}
+
+/* ── Subnet allocation visual bar ────────────────────────────── */
+.subnet-bar {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 20px;
+  margin-bottom: 4px;
+  border: 2px solid #1A1A1A;
+  overflow: hidden;
+}
+
+.subnet-bar-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 2px solid #1A1A1A;
+  cursor: default;
+  transition: opacity 0.15s ease;
+}
+
+.subnet-bar-block:last-child {
+  border-right: none;
+}
+
+/* Alternating: Burnt Orange (#FF4A1C) / Cream (#F4F1EA) */
+.subnet-bar-block:nth-child(odd) {
+  background-color: #FF4A1C;
+  color: #F4F1EA;
+}
+
+.subnet-bar-block:nth-child(even) {
+  background-color: #F4F1EA;
+  color: #1A1A1A;
+}
+
+.subnet-bar-block:hover {
+  opacity: 0.78;
+}
+
+/* Tiny CIDR labels below the bar */
+.subnet-bar-legend {
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.subnet-bar-legend-item {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px;
+  color: #5A5650;
+  text-align: center;
+  padding-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

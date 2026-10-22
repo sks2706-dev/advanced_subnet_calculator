@@ -138,6 +138,10 @@
                     <tr><th>Usable Hosts</th><td>{{ calc_result.num_hosts }}</td></tr>
                 </table>
 
+                <!--
+                    Binary Visualization — colorBinaryBits() in script.js will
+                    wrap every 1 in .net-bit (blue) and every 0 in .host-bit (orange).
+                -->
                 <h3 style="margin-top:28px">Binary Visualization</h3>
                 <pre>{{ calc_binary }}</pre>
             </div>
@@ -195,6 +199,30 @@
                     </tbody>
                 </table>
                 <p class="result-meta">Waste: {{ "%.2f"|format(vlsm_result.waste_pct) }}%</p>
+
+                <!-- ── VLSM Visual Allocation Bar ───────────────────────────
+                     Each block's flex value is proportional to its block size
+                     (usable_hosts + 2 accounts for network + broadcast).
+                     Alternating Burnt Orange / Cream via nth-child CSS.
+                ──────────────────────────────────────────────────────────── -->
+                <h3 style="margin-top:28px">Address Space Map</h3>
+                <div class="subnet-bar" title="Each block is proportional to the subnet size">
+                    {% for item in vlsm_result.allocations %}
+                    <div class="subnet-bar-block"
+                         style="flex: {{ item.usable_hosts + 2 }};"
+                         title="{{ item.subnet }} — {{ item.usable_hosts }} usable hosts">
+                        {{ item.subnet }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="subnet-bar-legend">
+                    {% for item in vlsm_result.allocations %}
+                    <div class="subnet-bar-legend-item"
+                         style="flex: {{ item.usable_hosts + 2 }};">
+                        {{ item.requested_hosts }}h
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         {% endif %}
 
@@ -230,6 +258,26 @@
         {% if split_result %}
             <div class="result-block">
                 <h3>New Subnets &mdash; {{ split_result.count }} total</h3>
+
+                <!-- ── Splitter Visual Bar ──────────────────────────────────
+                     All split subnets are equal in size → flex: 1 on each block.
+                     Alternating Burnt Orange / Cream via nth-child CSS.
+                ──────────────────────────────────────────────────────────── -->
+                <div class="subnet-bar" title="Equal-size subnets from the split">
+                    {% for sub in split_result.subnets %}
+                    <div class="subnet-bar-block"
+                         style="flex: 1;"
+                         title="{{ sub }}">
+                        {{ sub }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="subnet-bar-legend">
+                    {% for sub in split_result.subnets %}
+                    <div class="subnet-bar-legend-item" style="flex: 1;">{{ loop.index }}</div>
+                    {% endfor %}
+                </div>
+
                 <ul>
                     {% for sub in split_result.subnets %}
                     <li>{{ sub }}</li>
