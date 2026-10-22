@@ -1,50 +1,60 @@
-# Advanced Subnet Calculator
+# IPv4 Subnet & Network Toolkit
 
-A clean, beginner-friendly IPv4 subnetting and network planning toolkit built with Python's standard `ipaddress` module. It features an interactive command-line interface (CLI) and a lightweight web interface built with Flask.
+A Python-based advanced subnet calculator for **Classless IP Addressing (CIDR)**. Includes an interactive terminal CLI and a Flask web interface — five precision tools for IP address planning, allocation, and analysis.
 
 ---
 
 ## Features
 
-- **Subnet Calculations**: Computes network address, broadcast address, subnet mask, wildcard mask, usable host range, and total usable hosts.
-- **Edge Case Support**:
-  - `/32` (Single host / loopback)
-  - `/31` (Point-to-point links per RFC 3021, 2 usable hosts)
-  - `/0` (Entire IPv4 address space evaluated in $O(1)$)
-- **IP Class Identification**: Classifies addresses into Class A, B, C, D, or E based on the first octet.
-- **Binary Visualization**: Formats 32-bit addresses into 8-bit dot-separated binary representations showing bitwise AND (network) and bitwise OR (broadcast).
-- **VLSM Planning**: Uses First-Fit Decreasing (largest to smallest) to allocate subnets without boundary fragmentation and tracks address waste.
-- **Subnet Splitting**: Divides a larger network block into smaller, equal-sized subnets.
-- **Route Summarization**: Combines contiguous or overlapping subnets into minimal supernet routes.
-- **Overlap Detection**: Scans a list of CIDRs and detects any overlapping or conflicting address spaces.
+- **Subnet Calculator** — Computes network address, broadcast address, subnet mask, wildcard mask, usable host range, total usable hosts, and IP class from any CIDR input. Includes a **binary visualization** that color-codes network bits (blue) vs. host bits (orange).
+- **VLSM Planner** — Allocates subnets of varying sizes from a base network using Variable Length Subnet Masking (First-Fit Decreasing). Reports wasted address space and renders a proportional address space map.
+- **Subnet Splitter** — Divides any network block into equal-sized subnets by specifying a new prefix length. Renders a visual bar showing the split.
+- **Route Summarizer** — Collapses a list of CIDR blocks into the smallest set of covering supernet routes.
+- **Overlap Checker** — Scans a list of CIDRs and reports any conflicting (overlapping) address spaces.
+
+**Edge cases handled:** `/31` (point-to-point links, RFC 3021), `/32` (host routes), `/0` (entire IPv4 space).
 
 ---
 
-## Project Structure
+## File Structure
 
-```text
+```
 cn-subnet-calc/
-├── core.py               # Core subnet calculations, IP classification, and binary visualization
-├── vlsm.py               # VLSM planning using First-Fit Decreasing
-├── splitter.py           # Subnet splitting into smaller subnets
-├── summarizer.py         # Route summarization and address collapsing
-├── overlap.py            # Overlap and conflict detection across subnets
-├── cli.py                # Interactive command-line menu interface
-├── app.py                # Flask web interface for all calculator tools
+│
+├── core.py              # Core IP math: subnet info, binary representation, IP class
+├── vlsm.py              # VLSM planner: sorts requirements, allocates greedily
+├── splitter.py          # Subnet splitter: divides a network into equal sub-blocks
+├── summarizer.py        # Route summarizer: finds the supernet covering a set of CIDRs
+├── overlap.py           # Overlap checker: finds conflicting networks in a list
+│
+├── cli.py               # Interactive terminal interface (menu-driven)
+├── app.py               # Flask web application (POST-based, server-rendered)
+│
 ├── templates/
-│   └── index.html        # Flask HTML template
+│   └── index.html       # Single-page Jinja2 template with all five tool panels
 ├── static/
-│   └── style.css         # CSS styles for the web UI
-├── test_calculator.py    # Unit test suite written with pytest
-└── requirements.txt      # Project dependencies (Flask, pytest)
+│   ├── style.css        # Styles: layout, typography, binary bit colors, subnet bars
+│   └── script.js        # Vanilla JS: tab navigation, animations, binary colorizer
+│
+├── tests/               # Pytest test suite
+├── requirements.txt     # Python dependencies (Flask, pytest)
+└── README.md            # This file
 ```
 
 ---
 
 ## Installation
 
-1. Make sure you have Python 3.8+ installed.
-2. Install the required dependencies:
+**Requirements:** Python 3.8+
+
+1. Clone the repository and navigate into it:
+
+```bash
+git clone https://github.com/your-username/cn-subnet-calc.git
+cd cn-subnet-calc
+```
+
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -52,48 +62,53 @@ pip install -r requirements.txt
 
 ---
 
-## Usage
+## Usage — CLI
 
-### 1. Interactive Terminal CLI
-
-Run the text-based menu loop in your terminal:
+Run the interactive terminal interface:
 
 ```bash
 python cli.py
 ```
 
-Follow the on-screen options:
-1. **Calculate Subnet** (e.g., `192.168.1.1/24`)
-2. **VLSM Plan** (e.g., base `192.168.1.0/24` with hosts `120, 60, 30`)
-3. **Split Subnet** (e.g., base `192.168.1.0/24` with new prefix `26`)
-4. **Summarize Routes** (e.g., `192.168.0.0/24, 192.168.1.0/24`)
-5. **Check Overlaps** (e.g., `192.168.1.0/24, 192.168.1.128/25`)
+Follow the on-screen menu to pick a tool:
+
+1. **Calculate Subnet** — e.g., `192.168.1.1/24`
+2. **VLSM Plan** — e.g., base `10.0.0.0/24`, hosts `120 60 30`
+3. **Split Subnet** — e.g., base `192.168.0.0/22`, new prefix `24`
+4. **Summarize Routes** — e.g., `192.168.0.0/24` and `192.168.1.0/24`
+5. **Check Overlaps** — e.g., `10.0.0.0/8` and `10.1.0.0/16`
 6. **Exit**
 
 ---
 
-### 2. Web Application
+## Usage — Web Interface
 
-Launch the Flask development server:
+Start the Flask development server:
 
 ```bash
 python app.py
 ```
 
-Open your browser and navigate to:
+Open your browser and go to:
 
-```text
+```
 http://127.0.0.1:5000
 ```
 
-From the web UI, you can use all four tools (Subnet Calculator, VLSM Planner, Subnet Splitter, and Route Summarizer) directly through clean forms.
+Use the sidebar to switch between the five tools. Results are rendered on the same page with visual subnet bars and color-coded binary output.
 
 ---
 
-## Running Tests
+## Testing
 
-Execute the unit tests using `pytest`:
+Run the full Pytest suite:
 
 ```bash
 python -m pytest
+```
+
+For verbose output showing each test case:
+
+```bash
+python -m pytest -v
 ```
