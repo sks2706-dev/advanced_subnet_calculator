@@ -1,6 +1,6 @@
 # IPv4 Subnet & Network Toolkit
 
-A Python-based advanced subnet calculator for **Classless IP Addressing (CIDR)**. Includes an interactive terminal CLI and a Flask web interface — five precision tools for IP address planning, allocation, and analysis.
+A Python-based IPv4 addressing toolkit for **Classless IP Addressing (CIDR)**. It includes an interactive terminal CLI and a Flask web interface with seven tools for subnet analysis, address planning, and multi-site design.
 
 ---
 
@@ -11,6 +11,8 @@ A Python-based advanced subnet calculator for **Classless IP Addressing (CIDR)**
 - **Subnet Splitter** — Divides any network block into equal-sized subnets by specifying a new prefix length. Renders a visual bar showing the split.
 - **Route Summarizer** — Collapses a list of CIDR blocks into the smallest set of covering supernet routes.
 - **Overlap Checker** — Scans a list of CIDRs and reports any conflicting (overlapping) address spaces.
+- **Network Design Planner** — Converts named departments and VLAN requirements into a growth-aware VLSM plan, validates duplicate VLANs/reserved ranges, assigns gateways and DHCP ranges, and produces Cisco SVI configuration.
+- **Multi-Site WAN Planner** — Validates non-overlapping HQ/branch blocks, produces a per-site VLAN plan, and lists both individual and collapsed route advertisements.
 
 **Edge cases handled:** `/31` (point-to-point links, RFC 3021), `/32` (host routes), `/0` (entire IPv4 space).
 
@@ -26,17 +28,19 @@ cn-subnet-calc/
 ├── splitter.py          # Subnet splitter: divides a network into equal sub-blocks
 ├── summarizer.py        # Route summarizer: finds the supernet covering a set of CIDRs
 ├── overlap.py           # Overlap checker: finds conflicting networks in a list
+├── network_planner.py   # Constraint-aware VLAN/address-plan generator
+├── multisite.py         # Multi-site validation, allocation, and WAN route summaries
 │
 ├── cli.py               # Interactive terminal interface (menu-driven)
 ├── app.py               # Flask web application (POST-based, server-rendered)
 │
 ├── templates/
-│   └── index.html       # Single-page Jinja2 template with all five tool panels
+│   └── index.html       # Single-page Jinja2 template with all seven tool panels
 ├── static/
 │   ├── style.css        # Styles: layout, typography, binary bit colors, subnet bars
 │   └── script.js        # Vanilla JS: tab navigation, animations, binary colorizer
 │
-├── tests/               # Pytest test suite
+├── test_calculator.py   # Pytest test suite
 ├── requirements.txt     # Python dependencies (Flask, pytest)
 └── README.md            # This file
 ```
@@ -95,7 +99,7 @@ Open your browser and go to:
 http://127.0.0.1:5000
 ```
 
-Use the sidebar to switch between the five tools. Results are rendered on the same page with visual subnet bars and color-coded binary output.
+Use the sidebar to switch between all seven tools. The Network Design Planner and Multi-Site WAN Planner are available in the web interface; they add VLAN allocations, gateway/DHCP plans, Cisco SVI configuration, WAN route summaries, and a generated topology view.
 
 ---
 

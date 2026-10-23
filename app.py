@@ -4,6 +4,8 @@ from vlsm import vlsm_plan
 from splitter import split_subnet
 from summarizer import summarize_routes
 from overlap import check_overlaps
+from network_planner import build_network_plan
+from multisite import build_multisite_plan
 
 app = Flask(__name__)
 
@@ -34,6 +36,19 @@ def index():
     overlap_conflicts = None
     overlap_checked = False
     overlap_error = None
+
+    planner_base = ""
+    planner_departments = ""
+    planner_growth = "20"
+    planner_reserved = ""
+    planner_result = None
+    planner_error = None
+
+    multisite_sites = ""
+    multisite_departments = ""
+    multisite_growth = "20"
+    multisite_result = None
+    multisite_error = None
 
     if request.method == "POST":
         action = request.form.get("action", "")
@@ -94,6 +109,29 @@ def index():
             except ValueError as err:
                 overlap_error = str(err)
 
+        elif action == "planner":
+            planner_base = request.form.get("planner_base", "").strip()
+            planner_departments = request.form.get("planner_departments", "").strip()
+            planner_growth = request.form.get("planner_growth", "20").strip()
+            planner_reserved = request.form.get("planner_reserved", "").strip()
+            try:
+                planner_result = build_network_plan(
+                    planner_base, planner_departments, planner_growth, planner_reserved
+                )
+            except ValueError as err:
+                planner_error = str(err)
+
+        elif action == "multisite":
+            multisite_sites = request.form.get("multisite_sites", "").strip()
+            multisite_departments = request.form.get("multisite_departments", "").strip()
+            multisite_growth = request.form.get("multisite_growth", "20").strip()
+            try:
+                multisite_result = build_multisite_plan(
+                    multisite_sites, multisite_departments, multisite_growth
+                )
+            except ValueError as err:
+                multisite_error = str(err)
+
     return render_template(
         "index.html",
         calc_ip=calc_ip,
@@ -116,6 +154,17 @@ def index():
         overlap_conflicts=overlap_conflicts,
         overlap_checked=overlap_checked,
         overlap_error=overlap_error,
+        planner_base=planner_base,
+        planner_departments=planner_departments,
+        planner_growth=planner_growth,
+        planner_reserved=planner_reserved,
+        planner_result=planner_result,
+        planner_error=planner_error,
+        multisite_sites=multisite_sites,
+        multisite_departments=multisite_departments,
+        multisite_growth=multisite_growth,
+        multisite_result=multisite_result,
+        multisite_error=multisite_error,
     )
 
 

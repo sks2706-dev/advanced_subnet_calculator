@@ -17,6 +17,8 @@
     {%- elif split_result or split_error -%}section-split
     {%- elif sum_result or sum_error -%}section-sum
     {%- elif overlap_checked or overlap_error -%}section-overlap
+    {%- elif planner_result or planner_error -%}section-planner
+    {%- elif multisite_result or multisite_error -%}section-multisite
     {%- endif -%}
 ">
 
@@ -70,6 +72,12 @@
             tabindex="0"
             aria-controls="section-overlap">
             Overlap Checker
+        </li>
+        <li class="sidebar-nav-item" data-target="section-planner" data-index="06" role="button" tabindex="0" aria-controls="section-planner">
+            Network Planner
+        </li>
+        <li class="sidebar-nav-item" data-target="section-multisite" data-index="07" role="button" tabindex="0" aria-controls="section-multisite">
+            Multi-Site Planner
         </li>
     </ul>
 
@@ -358,6 +366,74 @@
             </div>
         {% endif %}
 
+    </section>
+
+    <!-- ── 6. Constraint-aware Network Planner ─────────────── -->
+    <section id="section-planner" class="tool-section" aria-labelledby="planner-title">
+        <div class="section-header">
+            <p class="section-eyebrow">Tool 06</p>
+            <h2 class="section-title" id="planner-title">Network Design Planner</h2>
+        </div>
+        <p class="planner-intro">Turn departments and VLAN constraints into an auditable address plan, including growth capacity and ready-to-paste Cisco SVI configuration.</p>
+        <form method="POST">
+            <input type="hidden" name="action" value="planner">
+            <div class="form-group"><label for="planner_base">Base CIDR</label><input type="text" id="planner_base" name="planner_base" required placeholder="10.10.0.0/16" value="{{ planner_base }}"></div>
+            <div class="form-group"><label for="planner_departments">Departments — Name, VLAN ID, Hosts (one per line)</label><textarea id="planner_departments" name="planner_departments" rows="6" required placeholder="Engineering, 20, 180&#10;HR, 10, 45&#10;Guest WiFi, 30, 300">{{ planner_departments }}</textarea></div>
+            <div class="form-group"><label for="planner_growth">Growth reserve (%)</label><input type="text" id="planner_growth" name="planner_growth" value="{{ planner_growth }}"></div>
+            <div class="form-group"><label for="planner_reserved">Reserved CIDRs (optional)</label><input type="text" id="planner_reserved" name="planner_reserved" placeholder="10.10.0.0/24, 10.10.16.0/24" value="{{ planner_reserved }}"></div>
+            <button type="submit">Generate Design</button>
+        </form>
+        {% if planner_error %}<p class="error">{{ planner_error }}</p>{% endif %}
+        {% if planner_result %}
+        <div class="result-block">
+            <h3>Validation</h3>
+            {% for level, message in planner_result.validation %}<p class="{{ level }}">{{ message }}</p>{% endfor %}
+            <p class="result-meta">Base: {{ planner_result.base }} · Unallocated addresses: {{ planner_result.unallocated_addresses }}</p>
+            {% if planner_result.allocations %}
+            <h3 style="margin-top:28px">VLAN Allocation Plan</h3>
+            <table><thead><tr><th>Department</th><th>VLAN</th><th>Subnet</th><th>Gateway</th><th>DHCP range</th><th>Capacity / headroom</th></tr></thead><tbody>{% for item in planner_result.allocations %}<tr><td>{{ item.name }}</td><td>{{ item.vlan }}</td><td>{{ item.subnet }}</td><td>{{ item.gateway }}</td><td>{{ item.dhcp_start }} – {{ item.dhcp_end }}</td><td>{{ item.usable_hosts }} / +{{ item.growth_headroom }}</td></tr>{% endfor %}</tbody></table>
+            <h3 style="margin-top:28px">Cisco SVI Configuration</h3><pre class="config-output">{{ planner_result.config }}</pre>
+            {% endif %}
+        </div>{% endif %}
+    </section>
+
+    <!-- ── 7. Multi-site planner ───────────────────────────── -->
+    <section id="section-multisite" class="tool-section" aria-labelledby="multisite-title">
+        <div class="section-header"><p class="section-eyebrow">Tool 07</p><h2 class="section-title" id="multisite-title">Multi-Site WAN Planner</h2></div>
+        <p class="planner-intro">Create isolated site address blocks, apply the same VLAN policy at each location, and generate the routes each WAN router should advertise.</p>
+        <form method="POST">
+            <input type="hidden" name="action" value="multisite">
+            <div class="form-group"><label for="multisite_sites">Sites — Name, CIDR (one per line)</label><textarea id="multisite_sites" name="multisite_sites" rows="5" required placeholder="HQ, 10.10.0.0/16&#10;Branch A, 10.20.0.0/16&#10;Branch B, 10.30.0.0/16">{{ multisite_sites }}</textarea></div>
+            <div class="form-group"><label for="multisite_departments">Standard departments — Name, VLAN ID, Hosts</label><textarea id="multisite_departments" name="multisite_departments" rows="5" required placeholder="Engineering, 20, 180&#10;HR, 10, 45&#10;Server VLAN, 50, 60">{{ multisite_departments }}</textarea></div>
+            <div class="form-group"><label for="multisite_growth">Growth reserve (%)</label><input type="text" id="multisite_growth" name="multisite_growth" value="{{ multisite_growth }}"></div>
+            <button type="submit">Build WAN Plan</button>
+        </form>
+        {% if multisite_error %}<p class="error">{{ multisite_error }}</p>{% endif %}
+        {% if multisite_result %}
+        <div class="result-block">
+            <h3>Validation</h3>{% for level, message in multisite_result.validation %}<p class="{{ level }}">{{ message }}</p>{% endfor %}
+            {% if multisite_result.sites %}
+            <h3 style="margin-top:28px">Complete Network Topology</h3>
+            <p class="topology-caption">Follow the links from the WAN core to each site router, its Layer-3 switch, and every allocated VLAN. Hover a node to inspect it.</p>
+            <div class="topology-canvas">
+                <svg class="topology-svg" viewBox="0 0 {{ multisite_result.diagram.width }} {{ multisite_result.diagram.height }}" role="img" aria-label="Multi-site network topology">
+                    {% for link in multisite_result.diagram.links %}<line class="topology-link" x1="{{ link.from_x }}" y1="{{ link.from_y }}" x2="{{ link.to_x }}" y2="{{ link.to_y }}" />{% endfor %}
+                    {% for node in multisite_result.diagram.nodes %}
+                    <g class="topology-node topology-{{ node.type }}" transform="translate({{ node.x }}, {{ node.y }})">
+                        <title>{{ node.label }} — {{ node.detail }}</title>
+                        <rect x="-116" y="-28" width="232" height="56" rx="4" />
+                        <text class="topology-label" x="0" y="-4">{{ node.label }}</text>
+                        <text class="topology-detail" x="0" y="15">{{ node.detail }}</text>
+                    </g>
+                    {% endfor %}
+                </svg>
+            </div>
+            <h3 style="margin-top:28px">Advertised Site Routes</h3><ul>{% for route in multisite_result.wan_routes %}<li>{{ route }}</li>{% endfor %}</ul>
+            <h3 style="margin-top:28px">Collapsed WAN Summary</h3><ul>{% for route in multisite_result.parent_summary %}<li>{{ route }}</li>{% endfor %}</ul>
+            <h3 style="margin-top:28px">Per-Site VLAN Plans</h3>
+            {% for site in multisite_result.sites %}<h4 class="site-heading">{{ site.name }} — {{ site.cidr }}</h4>{% if site.errors %}{% for error in site.errors %}<p class="error">{{ error }}</p>{% endfor %}{% else %}<table><thead><tr><th>VLAN</th><th>Department</th><th>Subnet</th><th>Gateway</th><th>Usable hosts</th></tr></thead><tbody>{% for item in site.plan.allocations %}<tr><td>{{ item.vlan }}</td><td>{{ item.name }}</td><td>{{ item.subnet }}</td><td>{{ item.gateway }}</td><td>{{ item.usable_hosts }}</td></tr>{% endfor %}</tbody></table>{% endif %}{% endfor %}
+            {% endif %}
+        </div>{% endif %}
     </section>
 
 </main>

@@ -400,6 +400,48 @@ li strong {
   background-color: #EDE9E0;
 }
 
+.notice, .planner-intro {
+  font-size: 13px;
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-left: 3px solid #C8C4BC;
+  color: #5A5650;
+  background: #EDE9E0;
+}
+
+.planner-intro {
+  margin: -12px 0 28px;
+  line-height: 1.6;
+}
+
+.config-output { white-space: pre; }
+
+.wan-topology { display: flex; gap: 18px; align-items: stretch; margin-top: 16px; flex-wrap: wrap; }
+.wan-cloud, .wan-site { border: 2px solid #1A1A1A; padding: 16px; min-width: 150px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+.wan-cloud { background: #1A1A1A; color: #F4F1EA; }
+.wan-cloud small { color: #C8C4BC; }
+.wan-site { background: #FF4A1C; color: #fff; position: relative; }
+.wan-site::before { content: "↔"; position: absolute; left: -18px; color: #1A1A1A; font-size: 22px; }
+.wan-site span { font-size: 12px; margin-top: 4px; }
+.site-heading { font-family: 'Fraunces', serif; font-size: 17px; margin: 28px 0 10px; }
+
+.topology-caption { font-size: 13px; color: #5A5650; margin: -8px 0 16px; }
+.topology-canvas { width: 100%; overflow: auto; border: 2px solid #1A1A1A; background: #EDE9E0; }
+.topology-svg { display: block; min-width: 880px; width: 100%; height: auto; }
+.topology-link { stroke: #1A1A1A; stroke-width: 3; stroke-linecap: round; }
+.topology-node rect { stroke: #1A1A1A; stroke-width: 2; transition: transform .15s ease, filter .15s ease; transform-box: fill-box; transform-origin: center; }
+.topology-node:hover rect { transform: scale(1.05); filter: brightness(.95); }
+.topology-node text { text-anchor: middle; pointer-events: none; }
+.topology-label { font: 600 14px 'Space Grotesk', sans-serif; fill: #1A1A1A; }
+.topology-detail { font: 11px 'Space Grotesk', sans-serif; fill: #5A5650; }
+.topology-core rect { fill: #1A1A1A; }
+.topology-core .topology-label { fill: #F4F1EA; }
+.topology-core .topology-detail { fill: #C8C4BC; }
+.topology-router rect { fill: #FF4A1C; }
+.topology-router .topology-label, .topology-router .topology-detail { fill: #fff; }
+.topology-switch rect { fill: #F4F1EA; }
+.topology-vlan rect { fill: #D9D4CA; }
+
 /* ── Animations ──────────────────────────────────────────────── */
 
 /* Staggered nav entrance */
